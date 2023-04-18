@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("kotlin")
+    kotlin("multiplatform")
 }
 
 extra.apply {
@@ -10,35 +10,81 @@ extra.apply {
     set("PUBLISH_ARTIFACT_ID", "komposable-architecture-test")
 }
 
-apply(from = "${rootProject.projectDir}/scripts/publish-module.gradle")
+//apply(from = "${rootProject.projectDir}/scripts/publish-module.gradle")
 
+kotlin {
 
-java {
-    withJavadocJar()
-    withSourcesJar()
+    jvm {
+        jvmToolchain(11)
+        withJava()
+//        testRuns["test"].executionTask.configure {
+//            useJUnitPlatform()
+//        }
+    }
+
+    js(IR) {
+        browser {
+            commonWebpackConfig {
+                cssSupport {
+                    enabled.set(true)
+                }
+            }
+        }
+    }
+
+    val hostOs = System.getProperty("os.name")
+    val isMingwX64 = hostOs.startsWith("Windows")
+    val nativeTarget = when {
+        hostOs == "Mac OS X" -> macosX64("native")
+        hostOs == "Linux" -> linuxX64("native")
+        isMingwX64 -> mingwX64("native")
+        else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
+    }
+
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(project(":komposable-architecture"))
+//
+//                implementation(libs.kotlin.stdlib)
+//                implementation(libs.kotlin.coroutines.core)
+//                implementation(libs.junit.jupiter.api)
+//                implementation(libs.junit.jupiter.engine)
+//                implementation(libs.kotlin.test.core)
+//                implementation(libs.kotlin.test.junit5)
+//                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
+
+        val commonTest by getting {
+            dependencies {
+                implementation(libs.junit.jupiter.api)
+                runtimeOnly(libs.junit.jupiter.engine)
+                implementation(libs.mockK)
+                implementation(libs.turbine)
+//                implementation(libs.kotestMatchers)
+                implementation(libs.kotlin.stdlib)
+                implementation(libs.kotlin.test.core)
+                implementation(libs.kotlin.test.junit5)
+                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
+        val jvmMain by getting
+        val jvmTest by getting
+        val jsMain by getting
+        val jsTest by getting
+        val nativeMain by getting
+        val nativeTest by getting
+    }
 }
 
-dependencies {
-    implementation(project(":komposable-architecture"))
-
-    implementation(libs.kotlin.stdlib)
-    implementation(libs.kotlin.coroutines.core)
-    implementation(libs.junit.jupiter.api)
-    implementation(libs.junit.jupiter.engine)
-    implementation(libs.kotlin.test.core)
-    implementation(libs.kotlin.test.junit5)
-    implementation(libs.kotlinx.coroutines.test)
-
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
-    testImplementation(libs.mockK)
-    testImplementation(libs.turbine)
-    testImplementation(libs.kotestMatchers)
-    testImplementation(libs.kotlin.stdlib)
-    testImplementation(libs.kotlin.test.core)
-    testImplementation(libs.kotlin.test.junit5)
-    testImplementation(libs.kotlinx.coroutines.test)
-}
+//java {
+//    withJavadocJar()
+//    withSourcesJar()
+//}
+//
+//dependencies {
+//}
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()

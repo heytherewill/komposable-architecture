@@ -1,5 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import com.diffplug.gradle.spotless.SpotlessExtension
+//import com.diffplug.gradle.spotless.SpotlessExtension
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
@@ -17,8 +17,8 @@ buildscript {
 }
 
 plugins {
-    alias(libs.plugins.spotless)
-    alias(libs.plugins.nexus)
+//    alias(libs.plugins.spotless)
+//    alias(libs.plugins.nexus)
 }
 
 extra.apply {
@@ -34,7 +34,7 @@ extra.apply {
     set("PUBLISH_SCM_URL", "https://github.com/toggl/komposable-architecture/tree/main")
 }
 
-apply(from = "${rootDir}/scripts/publish-root.gradle")
+//apply(from = "${rootDir}/scripts/publish-root.gradle")
 
 allprojects {
     repositories {
@@ -44,13 +44,13 @@ allprojects {
 }
 
 subprojects {
-    apply(plugin = rootProject.libs.plugins.spotless.get().pluginId)
-    configure<SpotlessExtension> {
-        kotlin {
-            target("**/*.kt")
-            ktlint(libs.versions.ktlint.get())
-        }
-    }
+//    apply(plugin = rootProject.libs.plugins.spotless.get().pluginId)
+//    configure<SpotlessExtension> {
+//        kotlin {
+//            target("**/*.kt")
+//            ktlint(libs.versions.ktlint.get())
+//        }
+//    }
 
     tasks.withType<KotlinCompile>().configureEach {
         kotlinOptions {
